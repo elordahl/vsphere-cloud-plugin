@@ -294,16 +294,34 @@ public class VSphere {
 		if (vm==null)
 			throw new VSphereException("vm is null");
 
-		for(int count=0; count<VSphereConstants.IP_MAX_TRIES; ++count){
+		boolean rebooted=false;
+		int count=0;
+
+		while( count<VSphereConstants.IP_MAX_TRIES ){
+			
 			if(vm.getGuest().getIpAddress()!=null){
 				return vm.getGuest().getIpAddress();
 			}
+			
 			try {
 				Thread.sleep(VSphereConstants.IP_MAX_SECONDS * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			
+			//try rebooting once
+			if((++count)==VSphereConstants.IP_MAX_TRIES && !rebooted){
+				try {
+					vm.rebootGuest();
+				} catch (Exception e) {
+					e.printStackTrace();
+					break;
+				} 
+				count=0;
+				rebooted=true;
+			}
 		}
+		
 		return null;
 	}
 
