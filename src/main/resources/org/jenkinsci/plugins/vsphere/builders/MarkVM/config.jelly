@@ -30,8 +30,8 @@ limitations under the License.
 	
 		<f:entry title="${%Timeout}" field="timeoutInSeconds">
 		  <f:textbox default="180" />
-		</f:entry>
-	</f:advanced>
+		</f:entry>	
     
-    <f:validateButton title="${%Check Data}" progress="${%Testing...}" method="testData" with="serverName,template"/>
+		<f:validateButton title="${%Check Data}" progress="${%Testing...}" method="testData" with="serverName,template"/>
+	</f:advanced>
 </j:jelly>
