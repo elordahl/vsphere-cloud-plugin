@@ -27,6 +27,7 @@ import com.vmware.vim25.VirtualMachinePowerState;
 import com.vmware.vim25.VirtualMachineQuestionInfo;
 import com.vmware.vim25.VirtualMachineRelocateSpec;
 import com.vmware.vim25.VirtualMachineSnapshotTree;
+import com.vmware.vim25.VirtualMachineToolsStatus;
 import com.vmware.vim25.mo.ClusterComputeResource;
 import com.vmware.vim25.mo.Folder;
 import com.vmware.vim25.mo.InventoryNavigator;
@@ -297,6 +298,7 @@ public class VSphere {
 		//Determine how many attempts will be made to fetch the IP address
 		final int waitSeconds = 5;
 		final int maxTries;
+
 		if (timeout<=waitSeconds) 
 			maxTries = 1;
 		else
@@ -307,20 +309,32 @@ public class VSphere {
 
 		while( count<maxTries ){
 
+			//fetch the IP address
 			if(vm.getGuest().getIpAddress()!=null){
 				return vm.getGuest().getIpAddress();
 			}
 
 			try {
+				//wait
 				Thread.sleep(waitSeconds * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
-			//try rebooting once
+			//try rebooting once, if possible
 			if((++count)==maxTries && !rebooted){
 				try {
+
+					//if VMware tools is not running, we can't reboot the guest 
+					//or fetch the IP;  Break the loop.
+					VirtualMachineToolsStatus v = vm.getGuest().getToolsStatus();
+					if ( v != VirtualMachineToolsStatus.toolsOk 
+							&& v != VirtualMachineToolsStatus.toolsOld ){
+						break;
+					}
+
 					vm.rebootGuest();
+
 				} catch (Exception e) {
 					e.printStackTrace();
 					break;
