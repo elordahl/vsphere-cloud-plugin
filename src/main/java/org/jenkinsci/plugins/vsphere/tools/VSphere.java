@@ -311,7 +311,13 @@ public class VSphere {
 
 			//fetch the IP address
 			if(vm.getGuest().getIpAddress()!=null){
-				return vm.getGuest().getIpAddress();
+				if (!vm.getGuest().getIpAddress().startsWith("169")){
+					return vm.getGuest().getIpAddress();
+				}
+				
+				//we've got an ip that starts with 169
+				//dont waste more time
+				count=maxTries;
 			}
 
 			try {
@@ -322,7 +328,7 @@ public class VSphere {
 			}
 
 			//try rebooting once, if possible
-			if((++count)==maxTries && !rebooted){
+			if((++count)>=maxTries && !rebooted){
 				try {
 
 					//if VMware tools is not running, we can't reboot the guest 
