@@ -340,6 +340,9 @@ public class VSphere {
 					}
 
 					vm.rebootGuest();
+					
+					//give VM a chance to reboot
+					Thread.sleep(waitSeconds * 1000);
 
 				} catch (Exception e) {
 					e.printStackTrace();
